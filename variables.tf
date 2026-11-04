@@ -23,3 +23,10 @@ variable "cors" {
   default     = { enabled = false }
   description = "Set to enable CORS configuration"
 }
+
+variable "restrict_public_buckets" {
+  type        = bool
+  default     = false
+  nullable    = false
+  description = "Set restrict_public_buckets on the bucket's public access block"
+}
