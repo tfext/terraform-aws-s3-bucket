@@ -8,9 +8,11 @@ Create a security-compliant S3 bucket
 |---|---|---|---|
 | `name` | `string` | required | Bucket name |
 | `versioned` | `bool` | `false` | Enable versioning |
-| `encrypt` | `bool` | `false` | Enable SSE-S3 (`AES256`) default encryption with a bucket key |
+| `encrypt` | `bool` | `false` | Manage SSE-S3 (`AES256`) default encryption explicitly. AWS applies it to every bucket anyway |
 | `cors` | `object` | `{ enabled = false }` | CORS configuration: `enabled`, plus optional `methods` (`["GET"]`), `origins` (`["*"]`) and `headers` (`["Authorization"]`) |
-| `restrict_public_buckets` | `bool` | `false` | Set `restrict_public_buckets` on the public access block, which always blocks public ACLs and policies and ignores public ACLs |
+| `noncurrent_version_expiration_days` | `number` | `null` | For a versioned bucket, delete noncurrent object versions after this many days. `null` keeps them forever |
+| `object_lock` | `object` | `null` | Default Object Lock retention for new objects: `days`, and `mode` (`GOVERNANCE` or `COMPLIANCE`, default `GOVERNANCE`). Needs `versioned = true`, and only takes effect when the bucket is created |
+| `restrict_public_buckets` | `bool` | `true` | Set `restrict_public_buckets` on the public access block, which always blocks public ACLs and policies and ignores public ACLs |
 
 ## Outputs
 
