@@ -1,5 +1,15 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 6.0"
+    }
+  }
+}
+
 resource "aws_s3_bucket" "bucket" {
-  bucket = var.name
+  bucket              = var.name
+  object_lock_enabled = var.object_lock != null
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket" {
@@ -19,14 +29,41 @@ resource "aws_s3_bucket_versioning" "bucket" {
   }
 }
 
+resource "aws_s3_bucket_object_lock_configuration" "bucket" {
+  count  = var.object_lock != null ? 1 : 0
+  bucket = aws_s3_bucket.bucket.id
+
+  rule {
+    default_retention {
+      mode = var.object_lock.mode
+      days = var.object_lock.days
+    }
+  }
+
+  depends_on = [aws_s3_bucket_versioning.bucket]
+}
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
   count  = var.encrypt ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
   rule {
-    bucket_key_enabled = true
-
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
+  count  = var.versioned && var.noncurrent_version_expiration_days != null ? 1 : 0
+  bucket = aws_s3_bucket.bucket.id
+
+  rule {
+    id     = "noncurrent-versions"
+    status = "Enabled"
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = var.noncurrent_version_expiration_days
     }
   }
 }

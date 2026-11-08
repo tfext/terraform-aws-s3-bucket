@@ -26,7 +26,22 @@ variable "cors" {
 
 variable "restrict_public_buckets" {
   type        = bool
-  default     = false
+  default     = true
   nullable    = false
   description = "Set restrict_public_buckets on the bucket's public access block"
+}
+
+variable "noncurrent_version_expiration_days" {
+  type        = number
+  default     = null
+  description = "Days after which noncurrent object versions are deleted, for a versioned bucket. Null keeps them forever"
+}
+
+variable "object_lock" {
+  type = object({
+    mode = optional(string, "GOVERNANCE")
+    days = number
+  })
+  default     = null
+  description = "Default S3 Object Lock retention for new objects. Needs versioned = true, and can only be set when the bucket is created"
 }
